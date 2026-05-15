@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rental Cars System - Clickable Prototype with Images</title>
+    <style>
+        /* ================= VARIABLES & RESET ================= */
+        :root {
+            --primary: #0B1E43;
+            --success: #198754;
+            --danger: #DC3545;
+            --warning: #FFC107;
+            --bg-light: #F8F9FA;
+            --white: #FFFFFF;
+            --text-dark: #212529;
+            --text-muted: #6C757D;
+            --border: #E9ECEF;
+            --font: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font); }
+        
+        body {
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* ================= APP SHELL ================= */
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 800px;
+            max-height: 100vh;
+            background-color: var(--bg-light);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* ================= PAGES & NAVIGATION ================= */
+        .page {
+            display: none; 
+            flex-direction: column;
+            height: 100%;
+            background-color: var(--bg-light);
+            position: absolute;
+            top: 0; left: 0; width: 100%;
+        }
+        .page.active { display: flex; z-index: 10; }
+
+        .header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            flex-shrink: 0;
+        }
+        .header h1 { font-size: 16px; font-weight: 600; flex: 1; text-align: center; }
+        .header-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; width: 30px; text-align: left; }
+        .header-spacer { width: 30px; }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            padding-bottom: 80px; 
+        }
+
+        /* ================= UI COMPONENTS ================= */
+        .btn-primary { background: var(--primary); color: white; width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 14px;}
+        .btn-primary:active { opacity: 0.8; }
+        .btn-outline { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+        .btn-danger-outline { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: white; }
+
+        .card { background: var(--white); border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card-clickable { cursor: pointer; transition: 0.2s; }
+        .card-clickable:active { transform: scale(0.98); background: #f0f0f0; }
+
+        /* Login Layout with Background Image */
+        .login-header { 
+            background: linear-gradient(rgba(11, 30, 67, 0.8), rgba(11, 30, 67, 0.9)), url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=400&q=80') center/cover;
+            height: 250px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            color: white; 
+        }
+        .login-card { background: white; margin: -50px 20px 0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* Image Adjustments */
+        .car-img-header { width: 100%; height: 220px; object-fit: cover; display: block; border-bottom: 1px solid var(--border); }
+        .car-thumb { width: 90px; height: 65px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        
+        .fixed-bottom { position: absolute; bottom: 0; left: 0; width: 100%; background: white; padding: 16px; border-top: 1px solid var(--border); z-index: 20;}
+        
+        .success-circle { width: 80px; height: 80px; background: var(--success); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 30px auto 20px; color: white; font-size: 40px; box-shadow: 0 4px 15px rgba(25, 135, 84, 0.3);}
+
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; }
+        .summary-label { color: var(--text-muted); }
+        .summary-value { font-weight: 600; color: var(--text-dark); text-align: right; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <div id="page-login" class="page active">
+        <div class="login-header">
+            <h2 style="font-size: 24px; letter-spacing: 1px;">Rental Cars</h2>
+            <p style="font-size: 12px; margin-top: 8px; color: #dcdde1;">Safe. Reliable. On Time.</p>
+        </div>
+        <div class="login-card">
+            <h3 style="text-align: center; margin-bottom: 24px; font-size: 20px; color: var(--primary);">Login</h3>
+            <div class="form-group">
+                <label>Email atau Nomor Telepon</label>
+                <input type="text" class="form-control" placeholder="tati.cahyati@student.president.ac.id" value="tati.cahyati@student.president.ac.id">
+            </div>
+            <div class="form-group">
+                <label>Kata Sandi</label>
+                <input type="password" class="form-control" placeholder="Masukkan kata sandi">
+                <div style="text-align: right; margin-top: 8px;"><a href="#" style="font-size: 11px; color: var(--primary); text-decoration: none;">Lupa Kata Sandi?</a></div>
+            </div>
+            <button class="btn-primary" onclick="navigate('page-home')">Masuk Aplikasi</button>
+            <div style="text-align: center; margin-top: 20px; font-size: 12px;">
+                Belum punya akun? <a href="#" style="color: var(--primary); font-weight: bold; text-decoration: none;">Daftar di sini</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-home" class="page">
+        <div class="header">
+            <button class="header-btn" onclick="navigate('page-login')">&#8592;</button>
+            <h1>Mobil Tersedia</h1>
+            <div class="header-spacer"></div>
+        </div>
+        <div class="content">
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <input type="text" class="form-control" placeholder="🔍 Cari mobil impian Anda...">
+                <button style="padding: 0 15px; border-radius: 8px; background: white; border: 1px solid var(--border);">⚙ Filter</button>
+            </div>
+            
+            <div class="card card-clickable" onclick="navigate('page-detail')" style="display: flex; align-items: center;">
+                <img src="https://images.unsplash.com/photo-1657872737697-737a2d123ef2?q=80&w=2070&auto=format&fit=crop&w=200&q=80" alt="Toyota Camry" class="car-thumb">
+                <div style="flex: 1; margin-left: 15px;">
+                    <h4 style="font-size: 15px; margin-bottom: 4px; color: var(--text-dark);">Toyota Camry</h4>
+                    <p style="font-size: 11px; color: var(--text-muted);">Sedan • Automatic • 5 Kursi</p>
+                    <p style="font-size: 14px; font-weight: bold; margin-top: 8px; color: var(--primary);">IDR 650.000 <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">/ hari</span></p>
+                </div>
+            </div>
+
+            <div class="card card-clickable" onclick="navigate('page-detail')" style="display: flex; align-items: center;">
+                <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=200&q=80" alt="Honda Civic" class="car-thumb">
+                <div style="flex: 1; margin-left: 15px;">
+                    <h4 style="font-size: 15px; margin-bottom: 4px; color: var(--text-dark);">Honda Civic</h4>
+                    <p style="font-size: 11px; color: var(--text-muted);">Sedan • Automatic • 5 Kursi</p>
+                    <p style="font-size: 14px; font-weight: bold; margin-top: 8px; color: var(--primary);">IDR 550.000 <span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">/ hari</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-detail" class="page">
+        <div class="header">
+            <button class="header-btn" onclick="navigate('page-home')">&#8592;</button>
+            <h1>Detail Mobil</h1>
+            <div class="header-spacer"></div>
+        </div>
+        <div class="content" style="padding: 0; padding-bottom: 80px;">
+            <img src="https://images.unsplash.com/photo-1657872737697-737a2d123ef2?q=80&w=2070&auto=format&fit=crop&w=600&q=80" alt="Toyota Camry Detail" class="car-img-header">
+            
+            <div style="padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px;">
+                    <div>
+                        <h2 style="font-size: 20px; color: var(--text-dark);">Toyota Camry</h2>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Sedan Eksekutif</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <h3 style="font-size: 18px; color: var(--primary);">IDR 650.000</h3>
+                        <p style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">/ hari</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 15px; font-size: 12px; margin-bottom: 24px; color: var(--text-dark); background: white; padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                    <div style="flex: 1; text-align: center;"><strong>👤 5</strong><br><span style="color:var(--text-muted); font-size:10px;">Kursi</span></div>
+                    <div style="flex: 1; text-align: center; border-left: 1px solid var(--border); border-right: 1px solid var(--border);"><strong>⚙ Auto</strong><br><span style="color:var(--text-muted); font-size:10px;">Transmisi</span></div>
+                    <div style="flex: 1; text-align: center;"><strong>⛽ Bensin</strong><br><span style="color:var(--text-muted); font-size:10px;">Bahan Bakar</span></div>
+                </div>
+
+                <h4 style="font-size: 14px; margin-bottom: 8px; color: var(--text-dark);">Deskripsi</h4>
+                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px;">Sedan premium yang menawarkan kenyamanan maksimal dan performa tangguh. Sangat cocok untuk perjalanan bisnis, acara keluarga, maupun liburan di luar kota dengan fitur keamanan paling mutakhir.</p>
+                
+                <h4 style="font-size: 14px; margin-bottom: 10px; color: var(--text-dark);">Fitur Utama</h4>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <span style="padding: 6px 12px; background: var(--bg-light); border: 1px solid var(--border); border-radius: 20px; font-size: 11px; color: var(--text-dark);">❄️ AC Dingin</span>
+                    <span style="padding: 6px 12px; background: var(--bg-light); border: 1px solid var(--border); border-radius: 20px; font-size: 11px; color: var(--text-dark);">📱 Bluetooth Audio</span>
+                    <span style="padding: 6px 12px; background: var(--bg-light); border: 1px solid var(--border); border-radius: 20px; font-size: 11px; color: var(--text-dark);">🔌 USB Charger</span>
+                    <span style="padding: 6px 12px; background: var(--bg-light); border: 1px solid var(--border); border-radius: 20px; font-size: 11px; color: var(--text-dark);">🛡️ Airbags</span>
+                </div>
+            </div>
+        </div>
+        <div class="fixed-bottom">
+            <button class="btn-primary" style="margin: 0;" onclick="navigate('page-booking')">Pesan Sekarang</button>
+        </div>
+    </div>
+
+    <div id="page-booking" class="page">
+        <div class="header">
+            <button class="header-btn" onclick="navigate('page-detail')">&#8592;</button>
+            <h1>Form Booking</h1>
+            <div class="header-spacer"></div>
+        </div>
+        <div class="content">
+            <div class="card" style="margin-bottom: 20px;">
+                <h4 style="margin-bottom: 15px; font-size: 14px; color: var(--primary);">Pilih Waktu Sewa</h4>
+                <div class="form-group">
+                    <label>Tanggal Penjemputan</label>
+                    <input type="date" class="form-control" value="2026-05-20">
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Pengembalian</label>
+                    <input type="date" class="form-control" value="2026-05-22">
+                </div>
+            </div>
+
+            <div class="card">
+                <h4 style="margin-bottom: 15px; font-size: 14px; color: var(--primary);">Detail Lokasi</h4>
+                <div class="form-group">
+                    <label>Lokasi Penjemputan</label>
+                    <select class="form-control">
+                        <option>Kantor Pusat Downtown</option>
+                        <option>Bandara Internasional</option>
+                        <option>Stasiun Utama</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Lokasi Pengembalian</label>
+                    <select class="form-control">
+                        <option>Kantor Pusat Downtown</option>
+                        <option>Bandara Internasional</option>
+                        <option>Stasiun Utama</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="fixed-bottom">
+            <button class="btn-primary" style="margin: 0;" onclick="navigate('page-payment')">Lanjutkan ke Pembayaran</button>
+        </div>
+    </div>
+
+    <div id="page-payment" class="page">
+        <div class="header">
+            <button class="header-btn" onclick="navigate('page-booking')">&#8592;</button>
+            <h1>Pembayaran</h1>
+            <div class="header-spacer"></div>
+        </div>
+        <div class="content">
+            <h4 style="margin-bottom: 15px; font-size: 14px;">Ringkasan Order Anda</h4>
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="summary-row">
+                    <span class="summary-label">Mobil</span>
+                    <span class="summary-value">Toyota Camry</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Durasi Sewa</span>
+                    <span class="summary-value">20 - 22 Mei 2026 (2 hari)</span>
+                </div>
+                <div class="summary-row" style="margin-top: 15px; border-top: 1px dashed var(--border); padding-top: 15px;">
+                    <span class="summary-label">Subtotal</span>
+                    <span class="summary-value">IDR 1.300.000</span>
+                </div>
+            </div>
+
+            <h4 style="margin-bottom: 15px; font-size: 14px;">Pilih Metode Pembayaran</h4>
+            <div class="card" style="padding: 12px 16px;">
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; margin-bottom: 15px; cursor: pointer;">
+                    <input type="radio" name="payment" checked> 💳 Kartu Kredit / Debit
+                </label>
+                <div style="height: 1px; background: var(--border); margin: 0 -16px 15px;"></div>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; margin-bottom: 15px; cursor: pointer;">
+                    <input type="radio" name="payment"> 📱 E-Wallet (OVO/GoPay/Dana)
+                </label>
+                <div style="height: 1px; background: var(--border); margin: 0 -16px 15px;"></div>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer;">
+                    <input type="radio" name="payment"> 💵 Tunai di Tempat (COD)
+                </label>
+            </div>
+        </div>
+        <div class="fixed-bottom" style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div style="font-size: 11px; color: var(--text-muted);">Total Tagihan</div>
+                <div style="font-size: 18px; font-weight: bold; color: var(--primary);">IDR 1.300.000</div>
+            </div>
+            <button class="btn-primary" style="width: 150px; margin: 0;" onclick="navigate('page-success')">Bayar</button>
+        </div>
+    </div>
+
+    <div id="page-success" class="page">
+        <div class="header">
+            <button class="header-btn" style="visibility: hidden;">&#8592;</button>
+            <h1>Transaksi Sukses</h1>
+            <div class="header-spacer"></div>
+        </div>
+        <div class="content" style="text-align: center;">
+            <div class="success-circle">✓</div>
+            <h2 style="font-size: 20px; margin-bottom: 8px; color: var(--success);">Pembayaran Berhasil!</h2>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 30px;">Mobil Toyota Camry Anda sudah siap untuk perjalanan.</p>
+            
+            <div class="card" style="text-align: left; margin-bottom: 30px; border-left: 4px solid var(--success);">
+                <div class="summary-row">
+                    <span class="summary-label">No. Pesanan</span>
+                    <span class="summary-value" style="color: var(--primary);">#RC-2026-0520</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Nama Mobil</span>
+                    <span class="summary-value">Toyota Camry</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Total Dibayar</span>
+                    <span class="summary-value">IDR 1.300.000</span>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="navigate('page-status')">Lihat Tiket Booking</button>
+            <button class="btn-primary btn-outline" onclick="navigate('page-home')">Kembali ke Beranda</button>
+        </div>
+    </div>
+
+    <div id="page-status" class="page">
+        <div class="header">
+            <button class="header-btn" onclick="navigate('page-home')">&#8592;</button>
+            <h1>Detail Pesanan</h1>
+            <div class="header-spacer"></div>
+        </div>
+        <div class="content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div>
+                    <div style="font-size: 11px; color: var(--text-muted);">No. Pesanan</div>
+                    <div style="font-weight: bold; font-size: 16px; color: var(--primary);">#RC-2026-0520</div>
+                </div>
+                <span style="background: #d1e7dd; color: #0f5132; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: bold;">✓ LUNAS</span>
+            </div>
+
+            <div class="card">
+                <div style="display: flex; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);">
+                    <img src="https://images.unsplash.com/photo-1621007947382-bb3c3994e3fd?auto=format&fit=crop&w=150&q=80" alt="Camry" class="car-thumb" style="width: 70px; height: 50px;">
+                    <div style="margin-left: 15px;">
+                        <div style="font-size: 15px; font-weight: bold; color: var(--text-dark);">Toyota Camry</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Sedan Eksekutif</div>
+                    </div>
+                </div>
+
+                <div class="summary-row">
+                    <span class="summary-label">Jadwal Sewa</span>
+                    <span class="summary-value" style="text-align: right;">20 Mei - 22 Mei 2026<br><span style="font-size: 11px; font-weight: normal; color: var(--text-muted);">(Durasi 2 hari)</span></span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Titik Jemput</span>
+                    <span class="summary-value">Kantor Pusat Downtown</span>
+                </div>
+                <div class="summary-row" style="border-bottom: 1px dashed var(--border); padding-bottom: 15px;">
+                    <span class="summary-label">Titik Kembali</span>
+                    <span class="summary-value">Kantor Pusat Downtown</span>
+                </div>
+                <div class="summary-row" style="margin-top: 15px;">
+                    <span class="summary-label">Total Pembayaran</span>
+                    <span class="summary-value" style="font-size: 16px; color: var(--primary);">IDR 1.300.000</span>
+                </div>
+            </div>
+
+            <button class="btn-primary btn-danger-outline" style="margin-top: 10px;" onclick="alert('Pembatalan hanya bisa dilakukan H-1. Silakan hubungi Customer Service.')">Batalkan Pesanan</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function navigate(targetPageId) {
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => {
+            page.classList.remove('active');
+        });
+        
+        const targetPage = document.getElementById(targetPageId);
+        if(targetPage) {
+            targetPage.classList.add('active');
+            targetPage.querySelector('.content').scrollTop = 0;
+        }
+    }
+</script>
+
+</body>
+</html>
